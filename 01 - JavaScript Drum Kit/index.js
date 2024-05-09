@@ -2,7 +2,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const keyDivs = Array.from(document.querySelectorAll('.key'));
   const audios = Array.from(document.querySelectorAll('audio'));
 
-  document.addEventListener('keydown', ({ key }) => {
+  keyDivs.forEach(key => key.addEventListener('transitionend', removeTransition));
+  document.addEventListener('keydown', playSound);
+
+  function removeTransition(e){
+    if (e.propertyName !== 'transform') return; // skip it if it's not a transform
+    this.classList.remove('playing');
+  }
+  
+  function playSound({key}) {
     const audio = audios.find(
       (audio) => audio.dataset.key.toLowerCase() === key.toLowerCase()
     );
@@ -12,18 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!audio) return;
 
-    reproduceAudioInstantly(audio.src);
-
-    keyDiv.classList.add('playing');
-    setTimeout(() => {
-      keyDiv.classList.remove('playing');
-    }, 100);
-
-    // audio.play();
-  });
+    audio.currentTime = 0;
+    audio.play();
+    keyDiv.classList.add('playing');    
+  }
 });
-
-function reproduceAudioInstantly(src) {
-  const audio = new Audio(src);
-  audio.play();
-}
